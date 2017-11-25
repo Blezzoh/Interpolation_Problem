@@ -1,8 +1,10 @@
 /******************************************************************************
- *  Compilation:  javac Polynomial.java
- *  Execution:    java Polynomial
- *
- *  Polynomials with integer coefficients.
+ *  Compilation:  javac PolynomialD.java
+ *  Execution:    java PolynomialD
+ *  Created by Blaise Iradukunda on Nov 23rd, 2017
+ *  Polynomials with double coefficients.
+ *  this is based of the Princeton Polynomial class
+ *  Uses double coefficients instead of int
  *
  *  % java Polynomial
  *  zero(x)     = 0
@@ -29,15 +31,11 @@
  *  It includes methods for addition, subtraction, multiplication, composition,
  *  differentiation, and evaluation.
  *  <p>
- *  For additional documentation,
- *  see <a href="https://algs4.cs.princeton.edu/99scientific">Section 9.9</a> of
- *  <i>Algorithms, 4th Edition</i> by Robert Sedgewick and Kevin Wayne.
  *
- *  @author Robert Sedgewick
- *  @author Kevin Wayne
+ *  Special thanks to the authors of Polynomial.java Robert Sedgewick and Kevin Wayne
  */
-public class Polynomial {
-    private int[] coef;   // coefficients p(x) = sum { coef[i] * x^i }
+public class PolynomialD {
+    private double[] coef;   // coefficients p(x) = sum { coef[i] * x^i }
     private int degree;   // degree of polynomial (-1 for the zero polynomial)
 
     /**
@@ -46,11 +44,11 @@ public class Polynomial {
      * @param b the exponent
      * @throws IllegalArgumentException if {@code b} is negative
      */
-    public Polynomial(int a, int b) {
+    public PolynomialD(double a, int b) {
         if (b < 0) {
             throw new IllegalArgumentException("exponent cannot be negative: " + b);
         }
-        coef = new int[b+1];
+        coef = new double[b+1];
         coef[b] = a;
         reduce();
     }
@@ -81,14 +79,14 @@ public class Polynomial {
      * @param  that the other polynomial
      * @return the polynomial whose value is {@code (this(x) + that(x))}
      */
-    public Polynomial plus(Polynomial that) {
-        Polynomial poly = new Polynomial(0, Math.max(this.degree, that.degree));
+    public PolynomialD plus(PolynomialD that) {
+        PolynomialD poly = new PolynomialD(0, Math.max(this.degree, that.degree));
         for (int i = 0; i <= this.degree; i++) poly.coef[i] += this.coef[i];
         for (int i = 0; i <= that.degree; i++) poly.coef[i] += that.coef[i];
         poly.reduce();
         return poly;
     }
-    public Polynomial plus(int that) {
+    public PolynomialD plus(double that) {
         this.coef[0] += that;
         this.reduce();
         return this;
@@ -101,15 +99,15 @@ public class Polynomial {
      * @param  that the other polynomial
      * @return the polynomial whose value is {@code (this(x) - that(x))}
      */
-    public Polynomial minus(Polynomial that) {
-        Polynomial poly = new Polynomial(0, Math.max(this.degree, that.degree));
+    public PolynomialD minus(PolynomialD that) {
+        PolynomialD poly = new PolynomialD(0, Math.max(this.degree, that.degree));
         for (int i = 0; i <= this.degree; i++) poly.coef[i] += this.coef[i];
         for (int i = 0; i <= that.degree; i++) poly.coef[i] -= that.coef[i];
         poly.reduce();
         return poly;
     }
-    public Polynomial minus(int that) {
-        Polynomial temp = this;
+    public PolynomialD minus(double that) {
+        PolynomialD temp = this;
         temp.coef[0] -= that;
         temp.reduce();
         return temp;
@@ -123,18 +121,18 @@ public class Polynomial {
      * @param  that the other polynomial
      * @return the polynomial whose value is {@code (this(x) * that(x))}
      */
-    public Polynomial times(Polynomial that) {
-        Polynomial poly = new Polynomial(0, this.degree + that.degree);
+    public PolynomialD times(PolynomialD that) {
+        PolynomialD poly = new PolynomialD(0, this.degree + that.degree);
         for (int i = 0; i <= this.degree; i++)
             for (int j = 0; j <= that.degree; j++)
                 poly.coef[i+j] += (this.coef[i] * that.coef[j]);
         poly.reduce();
         return poly;
     }
-    public Polynomial times(int that) {
+    public PolynomialD times(double that) {
 
         for (int i = 0; i <= this.degree; i++)
-                this.coef[i] *= that;
+            this.coef[i] *= that;
         this.reduce();
         return this;
     }
@@ -148,10 +146,10 @@ public class Polynomial {
      * @param  that the other polynomial
      * @return the polynomial whose value is {@code (this(that(x)))}
      */
-    public Polynomial compose(Polynomial that) {
-        Polynomial poly = new Polynomial(0, 0);
+    public PolynomialD compose(PolynomialD that) {
+        PolynomialD poly = new PolynomialD(0, 0);
         for (int i = this.degree; i >= 0; i--) {
-            Polynomial term = new Polynomial(this.coef[i], 0);
+            PolynomialD term = new PolynomialD(this.coef[i], 0);
             poly = term.plus(that.times(poly));
         }
         return poly;
@@ -170,7 +168,7 @@ public class Polynomial {
         if (other == this) return true;
         if (other == null) return false;
         if (other.getClass() != this.getClass()) return false;
-        Polynomial that = (Polynomial) other;
+        PolynomialD that = (PolynomialD) other;
         if (this.degree != that.degree) return false;
         for (int i = this.degree; i >= 0; i--)
             if (this.coef[i] != that.coef[i]) return false;
@@ -182,9 +180,9 @@ public class Polynomial {
      *
      * @return the polynomial whose value is {@code this'(x)}
      */
-    public Polynomial differentiate() {
-        if (degree == 0) return new Polynomial(0, 0);
-        Polynomial poly = new Polynomial(0, degree - 1);
+    public PolynomialD differentiate() {
+        if (degree == 0) return new PolynomialD(0, 0);
+        PolynomialD poly = new PolynomialD(0, degree - 1);
         poly.degree = degree - 1;
         for (int i = 0; i < degree; i++)
             poly.coef[i] = (i + 1) * coef[i + 1];
@@ -197,12 +195,7 @@ public class Polynomial {
      * @param  x the point at which to evaluate the polynomial
      * @return the integer whose value is {@code (this(x))}
      */
-    public int evaluate(int x) {
-        int p = 0;
-        for (int i = degree; i >= 0; i--)
-            p = coef[i] + (x * p);
-        return p;
-    }
+
     public double evaluate(double x) {
         double p = 0;
         for (int i = degree; i >= 0; i--)
@@ -220,7 +213,7 @@ public class Polynomial {
      *         polynomial; and a positive integer if this polynomial is greater than the
      *         argument point
      */
-    public int compareTo(Polynomial that) {
+    public int compareTo(PolynomialD that) {
         if (this.degree < that.degree) return -1;
         if (this.degree > that.degree) return +1;
         for (int i = this.degree; i >= 0; i--) {
@@ -257,23 +250,23 @@ public class Polynomial {
      * @param args the command-line arguments (none)
      */
     public static void main(String[] args) {
-        Polynomial zero = new Polynomial(0, 0);
+        PolynomialD zero = new PolynomialD(0, 0);
 
-        Polynomial p1   = new Polynomial(4, 3);
-        Polynomial p2   = new Polynomial(3, 2);
-        Polynomial p3   = new Polynomial(1, 0);
-        Polynomial p4   = new Polynomial(2, 1);
-        Polynomial p    = p1.plus(p2).plus(p3).plus(p4);   // 4x^3 + 3x^2 + 1
+        PolynomialD p1   = new PolynomialD(4, 3);
+        PolynomialD p2   = new PolynomialD(3, 2);
+        PolynomialD p3   = new PolynomialD(1, 0);
+        PolynomialD p4   = new PolynomialD(2, 1);
+        PolynomialD p    = p1.plus(p2).plus(p3).plus(p4);   // 4x^3 + 3x^2 + 1
 
-        Polynomial q1   = new Polynomial(3, 2);
-        Polynomial q2   = new Polynomial(5, 0);
-        Polynomial q    = q1.plus(q2);                     // 3x^2 + 5
+        PolynomialD q1   = new PolynomialD(3, 2);
+        PolynomialD q2   = new PolynomialD(5, 0);
+        PolynomialD q    = q1.plus(q2);                     // 3x^2 + 5
 
 
-        Polynomial r    = p.plus(q);
-        Polynomial s    = p.times(3);
-        Polynomial t    = p.compose(q);
-        Polynomial u    = p.minus(p);
+        PolynomialD r    = p.plus(q);
+        PolynomialD s    = p.times(3);
+        PolynomialD t    = p.compose(q);
+        PolynomialD u    = p.minus(p);
 
         System.out.println("zero(x)     = " + zero);
         System.out.println("p(x)        = " + p);
